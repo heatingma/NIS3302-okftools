@@ -10,6 +10,10 @@ os.system("make")
 cur_dir = os.getcwd()
 filename = os.path.join(cur_dir,'netlink_kernel.ko')
 shutil.copy(filename, target_dir)
+filename = os.path.join(cur_dir,'netlink_kernel.c')
+shutil.copy(filename, os.path.join(target_dir,'netlink_kernel'))
+filename = os.path.join(cur_dir,'Makefile')
+shutil.copy(filename, os.path.join(target_dir,'netlink_kernel'))
 os.chdir(ori_dir)
 
 #clean_log
