@@ -490,7 +490,7 @@ asmlinkage long fake_execve(struct pt_regs *regs)
     uid = current_uid().val;
 
 
-    memcpy_ret = copy_from_user(tmp, (char *)(regs->di), 512);
+    memcpy_ret = copy_from_user(tmp, (char *)(regs->di), 256);
 	memset(filename, 0, 256);
 	get_fullname(tmp, filename);
     if(memcpy_ret != 0)
