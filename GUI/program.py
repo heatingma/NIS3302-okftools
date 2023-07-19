@@ -78,6 +78,10 @@ class LOG():
         self.execve_state = 0
         self.shutdown_state = 0
         self.reboot_state = 0
+        self.finit_module_state = 0
+        self.mount_state = 0
+        self.umount2_state = 0
+        self.mknodat_state = 0
 
     def exit(self):
         if (self.openat_state == 1):
@@ -169,8 +173,10 @@ class LOG():
         self.path_tip = textBox(150, 150, 500, 40, font=20, color="#dddddd", font_color='red')
         self.path_submit_button = Button(700, 150, 50, 30, "SUBMIT", font=10, button_color='paleturquoise', text_color='black')
         
-        self.run_button = Button(240, 230, 140, 40, "RUN", font=20, button_color='paleturquoise', text_color='black')
-        self.log_button = Button(420, 230, 140, 40, "LOG", font=20, button_color='paleturquoise', text_color='black')
+        self.run_button = Button(150, 230, 140, 40, "RUN", font=20, button_color='paleturquoise', text_color='black')
+        self.log_button = Button(330, 230, 140, 40, "LOG", font=20, button_color='paleturquoise', text_color='black')
+        self.clean_button = Button(510, 230, 140, 40, "CLEAN", font=20, button_color='paleturquoise',
+                                   text_color='black')
         self.openat_button = Button(150, 290, 140, 40, "OPENAT", font=20, button_color='paleturquoise',
                                     text_color='black')
         self.unlink_button = Button(330, 290, 140, 40, "UNLINK", font=20, button_color='paleturquoise',
@@ -181,14 +187,15 @@ class LOG():
                                     text_color='black')
         self.reboot_button = Button(330, 350, 140, 40, "REBOOT", font=20, button_color='paleturquoise',
                                     text_color='black')
-        self.zts_button = Button(510, 350, 140, 40, "ZTS", font=20, button_color='paleturquoise',
+        self.finit_module_button = Button(510, 350, 140, 40, "FINIT", font=20, button_color='paleturquoise',
                                     text_color='black')
-        self.ztss_button = Button(150, 410, 140, 40, "ZTSS", font=20, button_color='paleturquoise',
+        self.mount_button = Button(150, 410, 140, 40, "MOUNT", font=20, button_color='paleturquoise',
                                     text_color='black')
-        self.ztsss_button = Button(330, 410, 140, 40, "ZTSSS", font=20, button_color='paleturquoise',
+        self.umount2_button = Button(330, 410, 140, 40, "UMOUNT2", font=20, button_color='paleturquoise',
                                     text_color='black')
-        self.clean_button = Button(510, 410, 140, 40, "CLEAN", font=20, button_color='paleturquoise',
-                                   text_color='black')
+        self.mknodat_button = Button(510, 410, 140, 40, "MKNODAT", font=20, button_color='paleturquoise',
+                                    text_color='black')
+
         
         self.exit_button = Button(600, 530, 100, 30, "EXIT", font=16, button_color='#aaaaaa', text_color='black')
 
@@ -199,14 +206,16 @@ class LOG():
         self.path_submit_button.force_check = True
         while (True):
             check_event([self.path_submit_button,self.run_button, self.openat_button, self.unlink_button, 
-                         self.execve_button,self.shutdown_button,self.reboot_button,self.zts_button,
-                         self.ztss_button,self.ztsss_button,self.clean_button,self.log_button, 
+                         self.execve_button,self.shutdown_button,self.reboot_button,self.finit_module_button,
+                         self.mount_button,self.umount2_button,self.mknodat_button,self.clean_button,self.log_button, 
                          self.exit_button, self.home_button], input=[self.path_input])
 
-            buttons = [self.run_button, self.openat_button, self.unlink_button, self.execve_button,
-                       self.shutdown_button, self.reboot_button]
-            states = [self.run_state, self.openat_state, self.unlink_state, self.execve_state,
-                      self.shutdown_state, self.reboot_state]
+            buttons = [self.run_button, self.openat_button, self.unlink_button, 
+                       self.execve_button, self.shutdown_button, self.reboot_button, self.finit_module_button,
+                       self.mount_button, self.umount2_button, self.mknodat_button]
+            states = [self.run_state, self.openat_state, self.unlink_state, 
+                      self.execve_state, self.shutdown_state, self.reboot_state,self.finit_module_state,
+                      self.mount_state, self.umount2_state, self.mknodat_state]
             
             for i in range(len(buttons)):
                 if states[i]:
@@ -229,6 +238,12 @@ class LOG():
                     self.run_state = 0
                     self.shell_box.change_font_color("black")
                     self.shell_box.input("RMMOD SUCCESS")
+
+            elif self.clean_button.active:
+                self.clean_button.active = False
+                self.shell.clean()
+                self.shell_box.change_font_color("black")
+                self.shell_box.input("CLEAN SUCCESS")
 
             elif self.openat_button.active:
                 self.openat_button.active = False
@@ -320,11 +335,78 @@ class LOG():
                     self.shell_box.change_font_color("black")
                     self.shell_box.input("RESTORE REBOOT SUCCESS")
 
-            elif self.clean_button.active:
-                self.clean_button.active = False
-                self.shell.clean()
-                self.shell_box.change_font_color("black")
-                self.shell_box.input("CLEAN SUCCESS")
+            elif self.finit_module_button.active:
+                self.finit_module_button.active = False
+                if self.finit_module_state == 0:
+                    if self.run_state == 0:
+                        self.shell_box.change_font_color("red")
+                        self.shell_box.input("CNNOT HOOK FINIT_MODULE")
+                    else:
+                        self.shell.hook_finit_module()
+                        self.finit_module_state = 1
+                        self.shell_box.change_font_color("black")
+                        self.shell_box.input("HOOK FINIT_MODULE SUCCESS")
+                        self.finit_module_button.change_color("orange")
+                else:
+                    self.shell.restore_finit_module()
+                    self.finit_module_state = 0
+                    self.shell_box.change_font_color("black")
+                    self.shell_box.input("RESTORE FINIT_MODULE SUCCESS")
+
+            elif self.mount_button.active:
+                self.mount_button.active = False
+                if self.mount_state == 0:
+                    if self.run_state == 0:
+                        self.shell_box.change_font_color("red")
+                        self.shell_box.input("CNNOT HOOK MOUNT")
+                    else:
+                        self.shell.hook_mount()
+                        self.mount_state = 1
+                        self.shell_box.change_font_color("black")
+                        self.shell_box.input("HOOK MOUNT SUCCESS")
+                        self.mount_button.change_color("orange")
+                else:
+                    self.shell.restore_mount()
+                    self.mount_state = 0
+                    self.shell_box.change_font_color("black")
+                    self.shell_box.input("RESTORE MOUNT SUCCESS")
+
+            elif self.umount2_button.active:
+                self.umount2_button.active = False
+                if self.umount2_state == 0:
+                    if self.run_state == 0:
+                        self.shell_box.change_font_color("red")
+                        self.shell_box.input("CNNOT HOOK UMOUNT2")
+                    else:
+                        self.shell.hook_umount2()
+                        self.umount2_state = 1
+                        self.shell_box.change_font_color("black")
+                        self.shell_box.input("HOOK UMOUNT2 SUCCESS")
+                        self.umount2_button.change_color("orange")
+                else:
+                    self.shell.restore_umount2()
+                    self.umount2_state = 0
+                    self.shell_box.change_font_color("black")
+                    self.shell_box.input("RESTORE UMOUNT2 SUCCESS")
+
+            elif self.mknodat_button.active:
+                self.mknodat_button.active = False
+                if self.mknodat_state == 0:
+                    if self.run_state == 0:
+                        self.shell_box.change_font_color("red")
+                        self.shell_box.input("CNNOT HOOK MKNODAT")
+                    else:
+                        self.shell.hook_mknodat()
+                        self.mknodat_state = 1
+                        self.shell_box.change_font_color("black")
+                        self.shell_box.input("HOOK MKNODAT SUCCESS")
+                        self.mknodat_button.change_color("orange")
+                else:
+                    self.shell.restore_mknodat()
+                    self.mknodat_state = 0
+                    self.shell_box.change_font_color("black")
+                    self.shell_box.input("RESTORE MKNODAT SUCCESS")
+
                 
             elif self.path_submit_button.active:
                 self.path_submit_button.active = False
@@ -358,10 +440,13 @@ class LOG():
 
             if self.path_input.text:
                 self.path_tip.show = False
-            self.update_screen([self.title, self.run_button, self.openat_button, self.unlink_button, self.unlink_button, 
-                                self.execve_button,self.shutdown_button,self.reboot_button,self.zts_button,self.ztss_button,
-                                self.ztsss_button,self.clean_button, self.log_button, self.shell_box, self.exit_button, 
-                                self.home_button,self.path_input, self.path_tip,self.path_submit_button])
+                
+            self.update_screen([self.title, self.exit_button, self.home_button, 
+                                self.shell_box, self.path_input, self.path_tip, self.path_submit_button,
+                                self.run_button, self.log_button, self.clean_button,  
+                                self.openat_button, self.unlink_button, 
+                                self.execve_button, self.shutdown_button, self.reboot_button, self.finit_module_button, 
+                                self.mount_button, self.umount2_button, self.mknodat_button])
 
     def team_init(self):
         message = "System level resource access audit based on system call overload\n\n"
@@ -555,6 +640,38 @@ class cmds:
     def restore_reboot(self):
         command = ['./send_msg_to_kernel', 'restore', 'reboot']
         self.run_command(command, 'restore_reboot')
+
+    def hook_finit_module(self):
+        command = ['./send_msg_to_kernel', 'hook', 'finit_module']
+        self.run_command(command, 'hook_finit_module')
+
+    def restore_finit_module(self):
+        command = ['./send_msg_to_kernel', 'restore', 'finit_module']
+        self.run_command(command, 'restore_finit_module')
+
+    def hook_mount(self):
+        command = ['./send_msg_to_kernel', 'hook', 'mount']
+        self.run_command(command, 'hook_mount')
+
+    def restore_mount(self):
+        command = ['./send_msg_to_kernel', 'restore', 'mount']
+        self.run_command(command, 'restore_mount')
+
+    def hook_umount2(self):
+        command = ['./send_msg_to_kernel', 'hook', 'umount2']
+        self.run_command(command, 'hook_umount2')
+
+    def restore_umount2(self):
+        command = ['./send_msg_to_kernel', 'restore', 'umount2']
+        self.run_command(command, 'restore_umount2')
+        
+    def hook_mknodat(self):
+        command = ['./send_msg_to_kernel', 'hook', 'mknodat']
+        self.run_command(command, 'hook_mknodat')
+
+    def restore_mknodat(self):
+        command = ['./send_msg_to_kernel', 'restore', 'mknodat']
+        self.run_command(command, 'restore_mknodat')
 
     def log_sort(self,input):
         self.procs['hook_openat'].stdin.write("sort " + input + "\n")
