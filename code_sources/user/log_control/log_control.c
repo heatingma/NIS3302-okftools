@@ -270,7 +270,7 @@ bool *search(const log *logs, int size, const char *str)    //search all, put re
         for (int i = 0; i < size; ++i)
         {
             if (KMP(str, logs[i].username) || KMP(str, logs[i].commandname) || KMP(str, logs[i].logtime) || 
-                KMP(str, logs[i].file_path)
+                KMP(str, logs[i].file_path))
                 limit[i] = true;
             else
                 limit[i] = false;

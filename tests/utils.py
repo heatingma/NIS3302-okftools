@@ -118,3 +118,45 @@ class cmds:
     def restore_mknodat(self):
         command = ['./send_msg_to_kernel', 'restore', 'mknodat']
         self.run_command(command, 'restore_mknodat')
+        
+    def test_log(self):
+        command = ['./log_control']
+        self.run_command(command, 'log_control')
+        
+        
+        self.procs['log_control'].stdin.write("sort 6\n")
+        self.procs['log_control'].stdin.flush()
+        time.sleep(0.1)
+        print('testing sort 6')
+        time.sleep(1)
+        
+        self.procs['log_control'].stdin.write("search /home\n")
+        self.procs['log_control'].stdin.flush()
+        time.sleep(0.1)
+        print('testing search /home/test.txt')
+        time.sleep(5)
+  
+        self.procs['log_control'].stdin.write('merge\n')
+        self.procs['log_control'].stdin.flush()
+        time.sleep(0.1)
+        print('testing merge')
+        time.sleep(5)
+        
+        self.procs['log_control'].stdin.write('reload\n')
+        self.procs['log_control'].stdin.flush()
+        time.sleep(0.1)
+        print('testing reload')
+        time.sleep(5)
+        
+        self.procs['log_control'].stdin.write('clear\n')
+        self.procs['log_control'].stdin.flush()
+        time.sleep(0.1)
+        print('testing clear')
+        time.sleep(5)
+        
+        self.procs['log_control'].stdin.write('exit\n')
+        self.procs['log_control'].stdin.flush()
+        time.sleep(1)
+        
+        
+
