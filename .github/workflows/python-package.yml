@@ -31,6 +31,9 @@ jobs:
       run: |
         python tests/make_code.py
         python tests/test_okftools.py
+    - name: pyintaller GUI 
+      run: |
+        python tests/make_gui.py
     - name: package all the generated files
       uses: actions/upload-artifact@v2
       with:
