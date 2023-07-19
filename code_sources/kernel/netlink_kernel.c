@@ -504,13 +504,13 @@ asmlinkage long fake_execve(struct pt_regs *regs)
     char msg[300] = "EXECVE:";
     uid_t uid;
     int memcpy_ret = -1;
-	char tmp[512];
-    char filename[512];
+	char tmp[256];
+    char filename[256];
 
     uid = current_uid().val;
 
 
-    memcpy_ret = copy_from_user(tmp, (char *)(regs->di), 512);
+    memcpy_ret = copy_from_user(tmp, (char *)(regs->di), 256);
 	memset(filename, 0, 256);
 	get_fullname(tmp, filename);
     if(memcpy_ret != 0)
