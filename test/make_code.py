@@ -8,29 +8,39 @@ target_dir = 'okftools'
 # netlink_kernel.ko
 os.chdir('c_code/kernel')
 os.system("make")
-shutil.copy('/netlink_kernel.ko', target_dir)
+cur_dir = os.getcwd()
+filename = os.path.join(cur_dir,'netlink_kernel.ko')
+shutil.copy(filename, target_dir)
 os.chdir(ori_dir)
 
 #clean_log
 os.chdir('c_code/user/clean_log/build')
 os.system("make")
-shutil.copy('clean_log', target_dir)
+cur_dir = os.getcwd()
+filename = os.path.join(cur_dir,'clean_log')
+shutil.copy(filename, target_dir)
 os.chdir(ori_dir)
 
 #recv_msg_from_kernel
 os.chdir('c_code/user/receive message/build')
 os.system("make")
-shutil.copy('recv_msg_from_kernel', target_dir)
+cur_dir = os.getcwd()
+filename = os.path.join(cur_dir,'recv_msg_from_kernel')
+shutil.copy(filename, target_dir)
 os.chdir(ori_dir)
 
 #send_msg_to_kernel
 os.chdir('c_code/user/send message/build')
 os.system("make")
-shutil.copy('send_msg_to_kernel', target_dir)
+cur_dir = os.getcwd()
+filename = os.path.join(cur_dir,'send_msg_to_kernel')
+shutil.copy(filename, target_dir)
 os.chdir(ori_dir)
 
 #send_conrtol_path
 os.chdir('c_code/user/send_conrtol_path/build')
 os.system("make")
-shutil.copy('send_conrtol_path', target_dir)
+cur_dir = os.getcwd()
+filename = os.path.join(cur_dir,'send_conrtol_path')
+shutil.copy(filename, target_dir)
 os.chdir(ori_dir)
