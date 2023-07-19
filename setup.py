@@ -26,14 +26,14 @@ except FileNotFoundError:
 
 setup(
     name=NAME,
-    version='0.0.3',
+    version='0.0.6',
     description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',
     author=AUTHOR,
     url=URL,
     packages=['okftools','code_sources'],
-    package_data={'okftools': ['*','netlink_kernel/*'], 
+    package_data={'okftools': ['*','netlink_kernel/*','GUI/*'], 
                   'code_sources': ['GUI/*', 'kernel/*', 'user/clean_log/*', 'user/log_control/*', \
                                    'user/receive message/*', 'user/send message/*', 'user/send_control_path/*']},
     install_requires=REQUIRED,
