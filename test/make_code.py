@@ -2,7 +2,7 @@ import os
 import shutil
 
 ori_dir = os.getcwd()
-target_dir = 'okftools'
+target_dir = os.path.join(ori_dir,'okftools')
 
 # netlink_kernel.ko
 os.chdir('c_code/kernel')
@@ -29,12 +29,9 @@ os.makedirs("build", exist_ok=True)
 os.chdir("build")
 os.system("cmake ..")
 os.system("make")
-print("successfully make the file recv_msg_from_kernel!\n")
 cur_dir = os.getcwd()
 filename = os.path.join(cur_dir, 'recv_msg_from_kernel')
-print("the file name is {}\n".format(filename))
 shutil.copy(filename, target_dir)
-print("copy from {} to {}\n".format(filename,target_dir))
 os.chdir(ori_dir)
 
 # send_msg_to_kernel
