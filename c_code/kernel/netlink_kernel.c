@@ -51,7 +51,6 @@ void get_fullname(const char *pathname,char *fullname);
 char *get_cur_time(void);
 
 
-
 /* hook the function openat */
 int openat_state;
 void handle_openat(int type);
@@ -71,6 +70,7 @@ asmlinkage long fake_unlink(const char __user *pathname);
 static unsigned long (*real_unlink_addr)(const char __user *);
 static unsigned long (*fake_unlink_addr)(const char __user *);
 
+
 /* hook the function execve */
 int execve_state;
 void handle_execve(int type);
@@ -79,6 +79,7 @@ void restore_execve(void);
 asmlinkage long fake_execve(struct pt_regs *regs);
 static unsigned long (*real_execve_addr)(struct pt_regs *regs);
 static unsigned long (*fake_execve_addr)(struct pt_regs *regs);
+
 
 /* hook the function shutdown */
 int shutdown_state;
@@ -89,6 +90,7 @@ asmlinkage long fake_shutdown(int sock, int howto);
 static unsigned long (*real_shutdown_addr)(int sock, int howto);
 static unsigned long (*fake_shutdown_addr)(int sock, int howto);
 
+
 /* hook the function reboot */
 int reboot_state;
 void handle_reboot(int type);
@@ -97,6 +99,52 @@ void restore_reboot(void);
 asmlinkage long fake_reboot(struct pt_regs *regs);
 static unsigned long (*real_reboot_addr)(struct pt_regs *regs);
 static unsigned long (*fake_reboot_addr)(struct pt_regs *regs);
+
+
+/* hook the function finit_module */
+int finit_module_state;
+void handle_finit_module(int type);
+void hook_finit_module(void);
+void restore_finit_module(void);
+asmlinkage long fake_finit_module(struct pt_regs *regs);
+static unsigned long (*real_finit_module_addr)(struct pt_regs *regs);
+static unsigned long (*fake_finit_module_addr)(struct pt_regs *regs);
+
+
+/* hook the function mount */
+int mount_state;
+void handle_mount(int type);
+void hook_mount(void);
+void restore_mount(void);
+asmlinkage long fake_mount(char __user *dev_name, char __user *dir_name,
+				char __user *type, unsigned long flags,
+				void __user *data);
+static unsigned long (*real_mount_addr)(char __user *dev_name, char __user *dir_name,
+				char __user *type, unsigned long flags,
+				void __user *data);
+static unsigned long (*fake_mount_addr)(char __user *dev_name, char __user *dir_name,
+				char __user *type, unsigned long flags,
+				void __user *data);
+
+/* hook the function umount2 */
+int umount2_state;
+void handle_umount2(int type);
+void hook_umount2(void);
+void restore_umount2(void);
+asmlinkage long fake_umount2(const char *target, int flags);
+static unsigned long (*real_umount2_addr)(const char *target, int flags);
+static unsigned long (*fake_umount2_addr)(const char *target, int flags);
+
+
+/* hook the function mknodat*/
+int mknodat_state;
+void handle_mknodat(int type);
+void hook_mknodat(void);
+void restore_mknodat(void);
+asmlinkage int fake_mknodat(struct pt_regs *reg);
+static unsigned int (*real_mknodat_addr)(struct pt_regs *reg);
+static unsigned int (*fake_mknodat_addr)(struct pt_regs *reg);
+
 
 /* netlink */
 #define NLMSG_MAX_PAYLOAD 1024
@@ -456,16 +504,13 @@ asmlinkage long fake_execve(struct pt_regs *regs)
     char msg[300] = "EXECVE:";
     uid_t uid;
     int memcpy_ret = -1;
-    char filename[512]; // linux 下路经最长为4096byte
+    char filename[512];
 
     uid = current_uid().val;
 
-    // kernel 不能直接操作user space的内存，因此需要现复制
-    // 如果成功返回0；如果失败，返回有多少个Bytes未完成copy
     memcpy_ret = copy_from_user(filename, (char *)(regs->di), 512);
     if(memcpy_ret != 0)
     {
-        // 从用户态复制数据出错
         printk(KERN_ERR "fake_execve: Error copying data from user space\n");
     }
     else
@@ -648,6 +693,278 @@ void restore_reboot(void)
 }
 
 
+/*-----------------------------------* FINIT_MODULE *---------------------------------*/
+
+void handle_finit_module(int type)
+{
+    if (type == 0){
+        if(finit_module_state == 1){
+            finit_module_state = 0;
+            hook_finit_module();
+        }
+    }
+    else{
+    	if(finit_module_state == 0){
+            finit_module_state = 1;
+            restore_finit_module();
+        }
+    }
+}
+
+asmlinkage long fake_finit_module(struct pt_regs *regs)
+{
+    char msg[300] = "FINIT_MODULE:";
+    char buffer[256];
+    uid_t uid = current_uid().val;
+    unsigned int fd = regs->di;
+    snprintf(buffer, sizeof(buffer), "Module initialized by user %u, fd: %lu\n", uid, fd);
+    strcat(msg,buffer);
+    send_message(msg);
+    return real_finit_module_addr(regs);
+}
+
+void hook_finit_module(void)
+{
+    char msg[100] = "HOOK:FINIT_MODULE\n";
+
+    fake_finit_module_addr = (unsigned long (*)(struct pt_regs *regs)) fake_finit_module;
+    real_finit_module_addr = (unsigned long (*)(struct pt_regs *regs)) sys_call_table[__NR_finit_module];
+	printk(KERN_INFO "real_finit_module:%lx\n",(long)real_finit_module_addr);
+
+	pte = lookup_address((unsigned long) sys_call_table, &level);
+    set_pte_atomic(pte, pte_mkwrite(*pte));
+    printk(KERN_INFO "Disable write-protection of page with sys_call_table\n");
+    sys_call_table[__NR_finit_module] = (unsigned long *) fake_finit_module_addr;
+    set_pte_atomic(pte, pte_clear_flags(*pte, _PAGE_RW));
+    printk(KERN_INFO "Restart write-protection successfully\n");
+    
+    printk(KERN_INFO "the finit_module function has been successfully hooked\n");
+
+    send_message(msg);
+}
+
+void restore_finit_module(void)
+{
+    char msg[100] = "RESTORE:FINIT_MODULE\n";
+
+    pte = lookup_address((unsigned long) sys_call_table, &level);
+    set_pte_atomic(pte, pte_mkwrite(*pte));
+    printk(KERN_INFO "Disable write-protection of page with sys_call_table\n");
+    sys_call_table[__NR_finit_module] = (unsigned long *) real_finit_module_addr;
+    set_pte_atomic(pte, pte_clear_flags(*pte, _PAGE_RW));
+    printk(KERN_INFO "Restart write-protection successfully!\n");
+    
+    printk(KERN_INFO "the finit_module function has been successfully restored\n");
+
+    send_message(msg);
+}
+
+
+/*--------------------------------------* MOUNT *-------------------------------------*/
+
+void handle_mount(int type){
+    if (type == 0){
+        if(mount_state == 1){
+            mount_state = 0;
+            hook_mount();
+        }
+    }
+    else{
+    	if(mount_state == 0){
+            mount_state = 1;
+            restore_mount();
+        }
+    }
+}
+
+asmlinkage long fake_mount(char __user *dev_name, char __user *dir_name,
+                            char __user *type, unsigned long flags,
+                            void __user *data) {
+    char msg[300] = "MOUNT:";
+    char dev_path[256];
+    char dir_path[256];
+    unsigned long len1 = strncpy_from_user(dev_path, dev_name,256);
+    unsigned long len2 = strncpy_from_user(dir_path, dir_name, 256);
+    strcat(msg,dev_path);
+    strcat(msg,"is_at_");
+    strcat(msg,dir_path);
+    printk(KERN_INFO "%s is mounted at %s\n", dev_name, dir_name);
+    send_message(msg);
+    return real_mount_addr(dev_name, dir_name, type, flags, data);
+}
+
+void hook_mount(void)
+{
+    char msg[100] = "HOOK:MOUNT\n";
+    fake_mount_addr = (unsigned long (*)(char __user *dev_name, char __user *dir_name,
+				char __user *type, unsigned long flags,
+				void __user *data)) fake_mount;
+    real_mount_addr = (unsigned long (*)(char __user *dev_name, char __user *dir_name,
+				char __user *type, unsigned long flags,
+				void __user *data)) sys_call_table[__NR_mount];
+
+    printk(KERN_INFO "real_mount%lx\n",(long)real_mount_addr);
+
+    pte = lookup_address((unsigned long)sys_call_table,&level);
+    set_pte_atomic(pte,pte_mkwrite(*pte));
+    printk(KERN_INFO "Disable write-protection of page with sys_call_table\n");
+    sys_call_table[__NR_mount] = (unsigned long *) fake_mount_addr;
+    set_pte_atomic(pte,pte_clear_flags(*pte, _PAGE_RW));
+    printk(KERN_INFO "Restart write-protection successfully\n");
+
+    printk(KERN_INFO "the mount function has been successfully hooked\n");
+    send_message(msg);
+}
+
+void restore_mount(void)
+{
+    char msg[100] = "RESTORE:MOUNT\n";
+    pte = lookup_address((unsigned long) sys_call_table, &level);
+    set_pte_atomic(pte, pte_mkwrite(*pte));
+    printk(KERN_INFO "Disable write-protection of page with sys_call_table\n");
+    sys_call_table[__NR_mount] = (unsigned long *) real_mount_addr;
+    set_pte_atomic(pte, pte_clear_flags(*pte, _PAGE_RW));
+    printk(KERN_INFO "Restart write-protection successfully!\n");
+    
+    printk(KERN_INFO "the mount function has been successfully restored\n");
+    send_message(msg);
+}
+
+
+/*-------------------------------------* UNMOUNT *------------------------------------*/
+
+void handle_umount2(int type)
+{
+    if (type == 0){
+        if(umount2_state == 1){
+            umount2_state = 0;
+            hook_umount2();
+        }
+    }
+    else{
+    	if(umount2_state == 0){
+            umount2_state = 1;
+            restore_umount2();
+        }
+    }
+}
+
+asmlinkage long fake_umount2(const char *target, int flags){
+    char msg[300] = "UMOUNT2:";
+    char pathname[256];
+    if (target != NULL && target[0] != '\0') { // 判断 target 是否为空
+        printk(KERN_INFO "%s is unmounted", target);
+    }
+    unsigned long len = strncpy_from_user(pathname, target, 256);
+    strcat(msg,pathname);
+    send_message(msg);
+    return real_umount2_addr(target, flags);
+}
+
+void hook_umount2(void)
+{
+    char msg[100] = "HOOK:UMOUNT2\n";
+    fake_umount2_addr = (unsigned long (*)(const char *target,int flags )) fake_umount2;
+    real_umount2_addr = (unsigned long (*)(const char *target,int flags)) sys_call_table[__NR_umount2];
+
+    printk(KERN_INFO "real_unmount%lx\n",(long)real_umount2_addr);
+
+    pte = lookup_address((unsigned long)sys_call_table,&level);
+    set_pte_atomic(pte,pte_mkwrite(*pte));
+    printk(KERN_INFO "Disable write-protection of page with sys_call_table\n");
+    sys_call_table[__NR_umount2] = (unsigned long *) fake_umount2_addr;
+    set_pte_atomic(pte,pte_clear_flags(*pte, _PAGE_RW));
+    printk(KERN_INFO "Restart write-protection successfully\n");
+
+    printk(KERN_INFO "the unmount function has been successfully hooked\n");
+    send_message(msg);
+}
+
+void restore_umount2(void)
+{
+    char msg[100] = "RESTORE:UMOUNT2\n";
+    pte = lookup_address((unsigned long) sys_call_table, &level);
+    set_pte_atomic(pte, pte_mkwrite(*pte));
+    printk(KERN_INFO "Disable write-protection of page with sys_call_table\n");
+    sys_call_table[__NR_umount2] = (unsigned long *) real_umount2_addr;
+    set_pte_atomic(pte, pte_clear_flags(*pte, _PAGE_RW));
+    printk(KERN_INFO "Restart write-protection successfully!\n");
+    printk(KERN_INFO "the unmount function has been successfully restored\n");
+    send_message(msg);
+}
+
+
+/*-------------------------------------* MKNODAT *------------------------------------*/
+
+void handle_mknodat(int type)
+{
+    if (type == 0){
+        if(mknodat_state == 1){
+            mknodat_state = 0;
+            hook_mknodat();
+        }
+    }
+    else{
+    	if(mknodat_state == 0){
+            mknodat_state = 1;
+            restore_mknodat();
+        }
+    }
+}
+
+asmlinkage int fake_mknodat(struct pt_regs *reg){
+            char msg[300] = "MKNODAT:";
+            char pathname[256];
+            unsigned long len = strncpy_from_user(pathname, (const char __user *) reg->si, 256);
+
+            if (len > 0) {
+                pathname[len] = '\0'; 
+                printk(KERN_INFO "pathname: %s\n", pathname); 
+            } 
+            else {
+                printk(KERN_ERR "Failed to copy pathname from user space\n");
+            }
+
+            printk(KERN_INFO "mknod:mkdir number %d device is created successfully at %s\n",(int)reg->di,pathname);
+            strcat(msg,pathname);
+            send_message(msg);
+            return real_mknodat_addr(reg);
+          }
+
+void hook_mknodat(void)
+{
+    char msg[100] = "HOOK:MKNODAT\n";
+    fake_mknodat_addr = (unsigned int (*)(struct pt_regs *reg)) fake_mknodat;
+    real_mknodat_addr = (unsigned int (*)(struct pt_regs *reg)) sys_call_table[__NR_mknodat];
+
+    printk(KERN_INFO "real_mknodat is :%lx\n",(long)real_mknodat_addr);
+
+    pte = lookup_address((unsigned long)sys_call_table,&level);
+    set_pte_atomic(pte,pte_mkwrite(*pte));
+    printk(KERN_INFO "Disable write-protection of page with sys_call_table\n");
+    sys_call_table[__NR_mknodat] = (unsigned long *) fake_mknodat_addr;
+    set_pte_atomic(pte,pte_clear_flags(*pte, _PAGE_RW));
+    printk(KERN_INFO "Restart write-protection successfully\n");
+
+    printk(KERN_INFO "the mknod function has been successfully hooked\n");
+    send_message(msg);
+}
+
+void restore_mknodat(void)
+{
+    char msg[100] = "RESTORE:MKNODAT\n";
+    pte = lookup_address((unsigned long) sys_call_table, &level);
+    set_pte_atomic(pte, pte_mkwrite(*pte));
+    printk(KERN_INFO "Disable write-protection of page with sys_call_table\n");
+    sys_call_table[__NR_mknodat] = (unsigned long *) real_mknodat_addr;
+    set_pte_atomic(pte, pte_clear_flags(*pte, _PAGE_RW));
+    printk(KERN_INFO "Restart write-protection successfully!\n");
+    
+    printk(KERN_INFO "the mknod function has been successfully restored\n");
+    send_message(msg);
+}
+
+
 /*--------------------------------------* NETLINK *------------------------------------*/
 
 static void netlink_receive_message_handle(struct sk_buff *sock_buffer) 
@@ -735,5 +1052,3 @@ void send_message(char *msg)
         printk(KERN_ERR "Error while sending back to user\n");
     }
 }
-
-
