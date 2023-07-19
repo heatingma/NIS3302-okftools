@@ -1,0 +1,32 @@
+name: Test Python package
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  linux:
+
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10"]
+        kernel-version: ["5.19"]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install make and cmake
+      run: |
+        sudo apt-get update
+        sudo apt-get install make
+        sudo apt-get install cmake
+    - name: make c_code
+      run: |
+        python tests/make_code.py

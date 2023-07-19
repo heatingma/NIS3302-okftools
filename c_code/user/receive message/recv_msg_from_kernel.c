@@ -93,7 +93,7 @@ void Log(char *commandname, int recv_uid, int recv_pid, char *file_path) {
     char openresult[10];
     char save_msg[1024];
 
-    logfile = fopen("log", "a+");
+    logfile = fopen("log.txt", "a+");
     if (logfile == NULL) {
         printf("Warning: can not open log file\n");
         exit(1);
