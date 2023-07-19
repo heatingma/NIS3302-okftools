@@ -19,7 +19,47 @@
         Ubuntu 22.04  linux-5.19
 
 ### 使用方法
-        pip install okftools
-        
+        1.pip install okftools
+<div><center>
+<img src=docs/pip.png width=70% height=70% >
+<br>
+<strong><font face="仿宋" size=2>图1 pip install okftools</font>
+</strong>
+</center></div>
 
+        2.pip show okftools
+<div><center>
+<img src=docs/show.png width=70% height=70% >
+<br>
+<strong><font face="仿宋" size=2>图2 pip show okftools</font>
+</strong>
+</center></div>
+
+        3.cd the okftools path
+
+        4.python okftools_setup.py or python3 okftools_setup.py 
+<div><center>
+<img src=docs/setup.png width=70% height=70% >
+<br>
+<img src=docs/pyinstaller.png width=70% height=70% >
+<br>
+<strong><font face="仿宋" size=2>图4 python okftools_setup.py</font>
+</strong>
+</center></div>
+
+        5. input the following command to use okftools
+                ./oktfools
+<div><center>
+<img src=docs/okftools.png width=70% height=70% >
+<br>
+<strong><font face="仿宋" size=2>图5 oktfools</font>
+</strong>
+</center></div>
+
+
+        * If the following error occurs:
+                libGL error: failed to load driver: swrast.
+                libGL error: failed to load driver: vmwgfx
+        * please try:
+                conda install -c conda-forge gcc=12.1.0
         
