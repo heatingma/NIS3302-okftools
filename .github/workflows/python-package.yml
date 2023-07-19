@@ -22,16 +22,11 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install required packages
+    - name: Install make and cmake
       run: |
         sudo apt-get update
         sudo apt-get install make
         sudo apt-get install cmake
-        sudo apt-get install -y build-essential
-        sudo apt-get install -y linux-headers-$(uname -r)
-    - name: Build kernel module
-      run: |
-        make -C /lib/modules/$(uname -r)/build M=$(pwd)/c_code/kernel CFLAGS="-Wall -Wextra -std=c99 -O2 -g" modules
     - name: make c_code
       run: |
         python test/make_code.py
