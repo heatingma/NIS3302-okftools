@@ -27,9 +27,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install make
         sudo apt-get install cmake
-        sudo apt-get install gcc-9
-        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90
-        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 90
+        sudo apt-get install gcc
     - name: make c_code
       run: |
         python test/make_code.py
