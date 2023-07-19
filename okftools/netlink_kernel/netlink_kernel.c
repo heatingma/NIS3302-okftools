@@ -211,6 +211,22 @@ static void __exit netlink_kernel_exit(void)
         reboot_state = 1;
         restore_reboot();
     }
+    if (finit_module_state == 0){
+        finit_module_state = 1;
+        restore_finit_module();
+    }
+    if (mount_state == 0){
+        mount_state = 1;
+        restore_mount();
+    }
+    if (umount2_state == 0){
+        umount2_state = 1;
+        restore_umount2();
+    }
+    if (mknodat_state == 0){
+        mknodat_state = 1;
+        restore_mknodat();
+    }
     netlink_kernel_release(netlink_sock);
     printk(KERN_INFO "netlink_kernel_exit\n");
 }
@@ -698,14 +714,43 @@ void handle_finit_module(int type)
     }
 }
 
+void Int_To_Str(int x,char *Str)
+{ 
+ int t; 
+ char *Ptr,Buf[5]; 
+ int i = 0; 
+ Ptr = Str; 
+ if(x < 10)  // 当整数小于10，转换为0x格式 
+ {  
+   *Ptr ++ = '0';  
+   *Ptr ++ = x+0x30;  
+ } 
+ else 
+ {  
+   while(x > 0)  
+ {   
+   t = x % 10;   
+   x = x / 10;   
+   Buf[i++] = t+0x30; // 通过计算把数字编成ASCII码形式  
+ }  
+ i -- ;  
+ for(;i >= 0;i --)   // 将得到的字符串倒序  
+ {   
+   *(Ptr++) = Buf[i];  
+ } 
+} 
+ *Ptr = '\0';
+}
+
 asmlinkage long fake_finit_module(struct pt_regs *regs)
 {
-    char msg[300] = "FINIT_MODULE:";
-    char buffer[256];
+    char msg[300] = "FINIT_MODULE:A new module is initialized, fd ";
     uid_t uid = current_uid().val;
     unsigned int fd = regs->di;
-    snprintf(buffer, sizeof(buffer), "Module initialized by user %u, fd: %u\n", uid, fd);
-    strcat(msg,buffer);
+    char Msg[20]="";   
+    Int_To_Str(fd,Msg);    
+    printk(KERN_INFO "Module initialized by user: %u, fd: %u\n", uid, fd);
+    strcat(msg,Msg);
     send_message(msg);
     return real_finit_module_addr(regs);
 }
@@ -777,7 +822,7 @@ asmlinkage long fake_mount(char __user *dev_name, char __user *dir_name,
     strcat(msg,dev_path);
     strcat(msg,"is_at_");
     strcat(msg,dir_path);
-    printk(KERN_INFO "%s is mounted at %s\n", dev_name, dir_name);
+    printk(KERN_INFO "%s is mounted at %s\n", dev_path, dir_path);
     send_message(msg);
     return real_mount_addr(dev_name, dir_name, type, flags, data);
 }
@@ -857,7 +902,7 @@ void hook_umount2(void)
     fake_umount2_addr = (unsigned long (*)(const char *target,int flags )) fake_umount2;
     real_umount2_addr = (unsigned long (*)(const char *target,int flags)) sys_call_table[__NR_umount2];
 
-    printk(KERN_INFO "real_unmount%lx\n",(long)real_umount2_addr);
+    printk(KERN_INFO "real_umount2 : %lx\n",(long)real_umount2_addr);
 
     pte = lookup_address((unsigned long)sys_call_table,&level);
     set_pte_atomic(pte,pte_mkwrite(*pte));
@@ -866,7 +911,7 @@ void hook_umount2(void)
     set_pte_atomic(pte,pte_clear_flags(*pte, _PAGE_RW));
     printk(KERN_INFO "Restart write-protection successfully\n");
 
-    printk(KERN_INFO "the unmount function has been successfully hooked\n");
+    printk(KERN_INFO "the umount2 function has been successfully hooked\n");
     send_message(msg);
 }
 
