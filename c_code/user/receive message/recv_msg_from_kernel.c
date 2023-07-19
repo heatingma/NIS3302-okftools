@@ -116,7 +116,7 @@ void Log(char *commandname, int recv_uid, int recv_pid, char *file_path) {
 }
 
 void clear_output(void) {
-    FILE *fp = fopen("log", "w");
+    FILE *fp = fopen("log.txt", "w");
     if (fp == NULL) {
         printf("ERROR: Cannot clear the file: log\n");
         return;

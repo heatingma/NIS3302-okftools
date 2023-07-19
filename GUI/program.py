@@ -510,6 +510,7 @@ class LOG():
 
 
     def log_action(self):
+        self.shell.log_control();
         self.last_page.append("log")
         elements = [self.sort_button, self.search_button, self.merge_button, self.reload_button,
                    self.pause_continue_button, self.clear_button, self.show_button, self.home_button]
@@ -681,37 +682,39 @@ class cmds:
         command = ['./send_msg_to_kernel', 'restore', 'mknodat']
         self.run_command(command, 'restore_mknodat')
 
+    def log_control(self):
+        command = ['./log_control']
+        self.run_command(command, 'log_control')
+
     def log_sort(self,input):
-        self.procs['hook_openat'].stdin.write("sort " + input + "\n")
-        self.procs['hook_openat'].stdin.flush()
+        self.procs['log_control'].stdin.write("sort " + input + "\n")
+        self.procs['log_control'].stdin.flush()
   
     def log_search(self,input):
-        self.procs['hook_openat'].stdin.write("search " + input + "\n")
-        self.procs['hook_openat'].stdin.flush()
+        self.procs['log_control'].stdin.write("search " + input + "\n")
+        self.procs['log_control'].stdin.flush()
   
     def log_merge(self):
-        self.procs['hook_openat'].stdin.write('merge\n')
-        self.procs['hook_openat'].stdin.flush() 
+        self.procs['log_control'].stdin.write('merge\n')
+        self.procs['log_control'].stdin.flush() 
 
     def log_reload(self):
-        self.procs['hook_openat'].stdin.write('reload\n')
-        self.procs['hook_openat'].stdin.flush() 
+        self.procs['log_control'].stdin.write('reload\n')
+        self.procs['log_control'].stdin.flush() 
 
     def log_continue(self):
-        self.procs['hook_openat'].stdin.write('continue\n')
-        self.procs['hook_openat'].stdin.flush()
+        self.recv_msg_from_kernel()
  
     def log_pause(self):
-        self.procs['hook_openat'].stdin.write('pause\n')
-        self.procs['hook_openat'].stdin.flush()  
+        os.kill(self.pids['recv_msg'], signal.SIGUSR1)
 
     def log_clear(self):
-        self.procs['hook_openat'].stdin.write('clear\n')
-        self.procs['hook_openat'].stdin.flush() 
+        self.procs['log_control'].stdin.write('clear\n')
+        self.procs['log_control'].stdin.flush() 
 
     def log_show(self):
-        self.procs['hook_openat'].stdin.write('show\n')
-        self.procs['hook_openat'].stdin.flush() 
+        self.procs['log_control'].stdin.write('show\n')
+        self.procs['log_control'].stdin.flush() 
   
 #############################################################
 ####                    BASIC CLASS                      ####

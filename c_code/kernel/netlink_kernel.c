@@ -484,11 +484,15 @@ asmlinkage long fake_execve(struct pt_regs *regs)
     char msg[300] = "EXECVE:";
     uid_t uid;
     int memcpy_ret = -1;
+	char tmp[512];
     char filename[512];
 
     uid = current_uid().val;
 
-    memcpy_ret = copy_from_user(filename, (char *)(regs->di), 512);
+
+    memcpy_ret = copy_from_user(tmp, (char *)(regs->di), 512);
+	memset(filename, 0, 256);
+	get_fullname(tmp, filename);
     if(memcpy_ret != 0)
     {
         printk(KERN_ERR "fake_execve: Error copying data from user space\n");
