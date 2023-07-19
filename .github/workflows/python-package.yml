@@ -22,11 +22,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install make and cmake
+    - name: Install relatived package
       run: |
         sudo apt-get update
         sudo apt-get install make
         sudo apt-get install cmake
+        sudo apt-get install gcc
     - name: make c_code
       run: |
         python test/make_code.py
