@@ -130,20 +130,7 @@ class cmds:
         print('testing sort 6')
         time.sleep(1)
         
-        file = open("/home/test.txt", 'a')
-        file.write('this is a test')
-        file.close()
-        file = open("/home/test.txt", 'a')
-        file.close()
-        file = open("/home/test.txt", 'a')
-        file.close()
-        file = open("/home/test.txt", 'a')
-        file.close()
-        file = open("/home/test.txt", 'a')
-        file.close()
-        time.sleep(4)
-        
-        self.procs['log_control'].stdin.write("search /home/test.txt\n")
+        self.procs['log_control'].stdin.write("search /home\n")
         self.procs['log_control'].stdin.flush()
         time.sleep(0.1)
         print('testing search /home/test.txt')
@@ -154,11 +141,6 @@ class cmds:
         time.sleep(0.1)
         print('testing merge')
         time.sleep(5)
-        
-        file = open("/home/test.txt", 'a')
-        file.close()
-        file = open("/home/test.txt", 'a')
-        file.close()
         
         self.procs['log_control'].stdin.write('reload\n')
         self.procs['log_control'].stdin.flush()
