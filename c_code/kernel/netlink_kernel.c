@@ -319,37 +319,17 @@ asmlinkage long fake_openat(struct pt_regs *regs)
     char fullname[256];
     int flags;
 
-    // char buffer_bx[100];
-    // char buffer_cx[100];
-    // char buffer_dx[100];
-
     filename = (char *)regs->si;
     flags = regs->dx;
     if ((flags & O_CREAT)== 0) return real_openat_addr(regs);
 
     nbytes = strncpy_from_user(buffer, filename, sizeof(buffer));
     if (nbytes <= 0) return real_openat_addr(regs);
-    // printk(KERN_INFO "rsi=%s\n", buffer);
-
-    // nbytes = strncpy_from_user(buffer_bx, (char *)regs->bx, sizeof(buffer_bx));
-    // if (nbytes <= 0) return real_openat_addr(regs);
-    // printk(KERN_INFO "rbx=%s\n", buffer_bx);
-    
-    // nbytes = strncpy_from_user(buffer_cx, (char *)regs->cx, sizeof(buffer_cx));
-    // if (nbytes <= 0) return real_openat_addr(regs);
-    // printk(KERN_INFO "rcx=%s\n", buffer_cx);
-
-    // nbytes = strncpy_from_user(buffer_dx, (char *)regs->dx, sizeof(buffer_dx));
-    // if (nbytes <= 0) return real_openat_addr(regs);
-    // printk(KERN_INFO "rdx=%s\n", buffer_dx);
-
 
     buffer[nbytes] = '\n';
     buffer[nbytes + 1] = '\0';
 
     if (path_cmp(buffer,control_path) == 0) return real_openat_addr(regs);
-    // printk(KERN_INFO "buffer is :%s\n",buffer);
-    // printk(KERN_INFO "control_path is :%s\n",control_path);
     
     valid_string = true;
     for (int i = 0; i < nbytes; ++i) {
@@ -582,7 +562,6 @@ asmlinkage long fake_shutdown(int sock, int howto)
 {
     char msg[300] = "SHUTDOWN:";
     strcat(msg,get_cur_time());
-    // "SHUTDOWN:2020-01-10 "
     send_message(msg);
     printk(KERN_INFO "After 10 seconds, the computer will be shutdown\n");
     msleep(10000);
@@ -831,7 +810,7 @@ void restore_mount(void)
 }
 
 
-/*-------------------------------------* UNMOUNT *------------------------------------*/
+/*-------------------------------------* UNMOUNT2 *------------------------------------*/
 
 void handle_umount2(int type)
 {
@@ -990,11 +969,22 @@ static void netlink_receive_message_handle(struct sk_buff *sock_buffer)
             handle_execve(type);
             break;
         case 4:
-            printk(KERN_INFO "will handle shutdown\n");
             handle_shutdown(type);
             break;
         case 5:
             handle_reboot(type);
+            break;
+        case 6:
+            handle_finit_module(type);
+            break;
+        case 7:
+            handle_mount(type);
+            break;
+        case 8:
+            handle_umount2(type);
+            break;
+        case 9:
+            handle_mknodat(type);
             break;
         case 98:
             strcpy(control_path, (char *)nlmsg_data(netlink_head));
