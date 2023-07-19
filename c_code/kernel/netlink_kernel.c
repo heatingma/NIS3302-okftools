@@ -696,7 +696,7 @@ asmlinkage long fake_finit_module(struct pt_regs *regs)
     char buffer[256];
     uid_t uid = current_uid().val;
     unsigned int fd = regs->di;
-    snprintf(buffer, sizeof(buffer), "Module initialized by user %u, fd: %lu\n", uid, fd);
+    snprintf(buffer, sizeof(buffer), "Module initialized by user %u, fd: %u\n", uid, fd);
     strcat(msg,buffer);
     send_message(msg);
     return real_finit_module_addr(regs);
@@ -762,8 +762,10 @@ asmlinkage long fake_mount(char __user *dev_name, char __user *dir_name,
     char msg[300] = "MOUNT:";
     char dev_path[256];
     char dir_path[256];
-    unsigned long len1 = strncpy_from_user(dev_path, dev_name,256);
-    unsigned long len2 = strncpy_from_user(dir_path, dir_name, 256);
+    unsigned long len1;
+    unsigned long len2;
+    len1 = strncpy_from_user(dev_path, dev_name,256);
+    len2 = strncpy_from_user(dir_path, dir_name, 256);
     strcat(msg,dev_path);
     strcat(msg,"is_at_");
     strcat(msg,dir_path);
@@ -831,10 +833,11 @@ void handle_umount2(int type)
 asmlinkage long fake_umount2(const char *target, int flags){
     char msg[300] = "UMOUNT2:";
     char pathname[256];
+    unsigned long len;
     if (target != NULL && target[0] != '\0') { // 判断 target 是否为空
         printk(KERN_INFO "%s is unmounted", target);
     }
-    unsigned long len = strncpy_from_user(pathname, target, 256);
+    len = strncpy_from_user(pathname, target, 256);
     strcat(msg,pathname);
     send_message(msg);
     return real_umount2_addr(target, flags);
