@@ -29,4 +29,4 @@ jobs:
         sudo apt-get install cmake
     - name: make c_code
       run: |
-        python tests/make_code.py
+        python test/make_code.py
