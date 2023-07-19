@@ -1,5 +1,5 @@
 import os
-from tests.utils import cmds
+from utils import cmds
 import time
 ori_dir = os.getcwd()
 
