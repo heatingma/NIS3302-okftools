@@ -27,8 +27,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install make
         sudo apt-get install cmake
-        sudo apt-get install gcc
-        sudo apt-get install clang
     - name: make c_code
       run: |
         python test/make_code.py
