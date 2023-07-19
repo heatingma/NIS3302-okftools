@@ -1,0 +1,17 @@
+runner 1001 EXECVE 3597 2023-07-19 13:03:55 /home/runner/work/NIS3302-okftools/NIS3302-okftools/okftools//bin/sh
+runner 1001 EXECVE 35981 2023-07-19 13:03:55 /home/runner/work/NIS3302-okftools/NIS3302-okftools/okftools//usr/bin/clear
+runner 1001 EXECVE 3603 2023-07-19 13:04:01 /home/runner/work/NIS3302-okftools/NIS3302-okftools/okftools/./send_msg_to_kernel
+runner 1001 RESTORE 3603 2023-07-19 13:04:01 OPENAT
+runner 1001 NETLINK 3603 2023-07-19 13:04:01 Hello from kernel
+runner 1001 EXECVE 3604 2023-07-19 13:04:01 /home/runner/work/NIS3302-okftools/NIS3302-okftools/okftools/./send_msg_to_kernel
+runner 1001 RESTORE 3604 2023-07-19 13:04:01 UNLINK
+runner 1001 NETLINK 3604 2023-07-19 13:04:01 Hello from kernel
+runner 1001 EXECVE 3605 2023-07-19 13:04:01 /home/runner/work/NIS3302-okftools/NIS3302-okftools/okftools/./send_msg_to_kernel
+runner 1001 RESTORE 3605 2023-07-19 13:04:01 EXECVE
+runner 1001 NETLINK 3605 2023-07-19 13:04:01 Hello from kernel
+runner 1001 RESTORE 3606 2023-07-19 13:04:01 SHUTDOWN
+runner 1001 NETLINK 3606 2023-07-19 13:04:01 Hello from kernel
+runner 1001 RESTORE 3607 2023-07-19 13:04:01 REBOOT
+runner 1001 NETLINK 3607 2023-07-19 13:04:01 Hello from kernel
+runner 1001 RESTORE 3610 2023-07-19 13:04:02 FINIT_MODULE
+runner 1001 NETLINK 3610 2023-07-19 13:04:02 Hello from kernel
