@@ -2,20 +2,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "log_control.h"
 
 #define TM_FMT "%Y-%m-%d %H:%M:%S"
-#define LOG_FMT "%s %d %s %d %s %s %s %s %s\n"
-#define LOG_SHOW_FMT "%s(%d) %s(%d) %s \"%s\" %s %s\n"
+#define LOG_FMT "%s %d %s %d %s %s\n"
+#define LOG_SHOW_FMT "%s(%d) %s(%d) %s \"%s\"\n"
 #define max(a, b) a > b ? a : b
 
-volatile int com = 0;    //com = 1 pause
 int next[256];
 int malloc_size = 0;
 
 typedef struct LOG
 {
-    char *username, *commandname, *logtime, *file_path, *opentype, *openresult;
+    char *username, *commandname, *logtime, *file_path;
     int uid, pid;
 } log;
 
@@ -25,8 +23,6 @@ void help()
     printf("search\n\tsearch WORD: Search for logs containing WORD\n");
     printf("merge\n\tmerge: Merge the same logs\n");
     printf("reload\n\treload: Reload the logs from the file\n");
-    printf("pause\n\tpause: Pause Logging\n");
-    printf("continue\n\tcontinue: Continue Logging\n");
     printf("clear\n\tclear: Clear the log file\n");
     printf("show\n\tshow: Show the logs\n");
     printf("help\n\thelp: Show this page\n");
@@ -42,7 +38,7 @@ void show(log *logs, int size, bool *limit)
         {
             if (limit[i])
                 printf(LOG_SHOW_FMT, logs[i].username, logs[i].uid, logs[i].commandname, logs[i].pid,
-                    logs[i].logtime, logs[i].file_path, logs[i].opentype, logs[i].openresult);
+                    logs[i].logtime, logs[i].file_path);
         }
     }
     else
@@ -50,7 +46,7 @@ void show(log *logs, int size, bool *limit)
         for (int i = 0; i < size; ++i)
         {
             printf(LOG_SHOW_FMT, logs[i].username, logs[i].uid, logs[i].commandname, logs[i].pid,
-                logs[i].logtime, logs[i].file_path, logs[i].opentype, logs[i].openresult);
+                logs[i].logtime, logs[i].file_path);
         }
     }
 }
@@ -69,8 +65,6 @@ void log_var_init(log* logs)
         logs[i].commandname = (char*)malloc(sizeof(char) * 30);
         logs[i].logtime = (char*)malloc(sizeof(char) * 20); //
         logs[i].file_path = (char*)malloc(sizeof(char) * 256);
-        logs[i].opentype = (char*)malloc(sizeof(char) * 16);
-        logs[i].openresult = (char*)malloc(sizeof(char) * 20);
     }
 }
 
@@ -82,8 +76,6 @@ void release(log* logs, int size)
         free(logs[i].commandname);
         free(logs[i].logtime);
         free(logs[i].file_path);
-        free(logs[i].opentype);     //debug:fail
-        free(logs[i].openresult);
     }
     free(logs);
 }
@@ -110,15 +102,25 @@ void open_log(log* logs) //read all logs and return the num of logs
     int i = 0;
     
     char tmp[20];
+	char c;
 
 
     for (int i = 0; i < malloc_size; ++i)
     {
+		int j = 0;
         fscanf(logfile, LOG_FMT, logs[i].username, &logs[i].uid, logs[i].commandname,
-            &logs[i].pid, logs[i].logtime, tmp, logs[i].file_path, logs[i].opentype, logs[i].openresult);
+            &logs[i].pid, logs[i].logtime, tmp);
         logs[i].logtime[10] = ' ';
         logs[i].logtime[11] = '\0';
         strcat(logs[i].logtime, tmp);
+        for (; ; ++j)
+        {
+			c = getc(logfile);
+            if (c == '\n' || c == EOF)
+                break;
+            logs[i].file_path[j] = c;
+        }
+        logs[i].file_path[j] = '\0';
     }
     fclose(logfile);
 }
@@ -129,8 +131,6 @@ void swap(log *a, log *b)
     tmp.commandname = a->commandname;
     tmp.file_path = a->file_path;
     tmp.logtime = a->logtime;
-    tmp.openresult = a->openresult;
-    tmp.opentype = a->opentype;
     tmp.username = a->username;
     tmp.pid = a->pid;
     tmp.uid = a->uid;
@@ -138,8 +138,6 @@ void swap(log *a, log *b)
     a->commandname = b->commandname;
     a->file_path = b->file_path;
     a->logtime = b->logtime;
-    a->openresult = b->openresult;
-    a->opentype = b->opentype;
     a->username = b->username;
     a->pid = b->pid;
     a->uid = b->uid;
@@ -147,8 +145,6 @@ void swap(log *a, log *b)
     b->commandname = tmp.commandname;
     b->file_path = tmp.file_path;
     b->logtime = tmp.logtime;
-    b->openresult = tmp.openresult;
-    b->opentype = tmp.opentype;
     b->username = tmp.username;
     b->pid = tmp.pid;
     b->uid = tmp.uid;
@@ -193,10 +189,6 @@ bool cmp_logtime(log *a, log *b){ return strcmp(a->logtime, b->logtime) < 0; }
 
 bool cmp_filepath(log *a, log *b){ return strcmp(a->file_path, b->file_path) < 0; }
 
-bool cmp_opentype(log *a, log *b){ return strcmp(a->opentype, b->opentype) < 0; }
-
-bool cmp_openresult(log *a, log *b){ return strcmp(a->openresult, b->openresult) < 0; }
-
 
 bool cmp_username_rev(log *a, log *b){ return strcmp(a->username, b->username) > 0; }
 
@@ -209,10 +201,6 @@ bool cmp_pid_rev(log *a, log *b){ return a->pid > b->pid; }
 bool cmp_logtime_rev(log *a, log *b){ return strcmp(a->logtime, b->logtime) > 0; }
 
 bool cmp_filepath_rev(log *a, log *b){ return strcmp(a->file_path, b->file_path) > 0; }
-
-bool cmp_opentype_rev(log *a, log *b){ return strcmp(a->opentype, b->opentype) > 0; }
-
-bool cmp_openresult_rev(log *a, log *b){ return strcmp(a->openresult, b->openresult) > 0; }
 
 int stoi(const char *str)
 {
@@ -269,7 +257,7 @@ bool *search(const log *logs, int size, const char *str)    //search all, put re
         for (int i = 0; i < size; ++i)
         {
             if (KMP(str, logs[i].username) || KMP(str, logs[i].commandname) || KMP(str, logs[i].logtime) || 
-                KMP(str, logs[i].file_path) || KMP(str, logs[i].opentype) || KMP(str, logs[i].openresult))
+                KMP(str, logs[i].file_path))
                 limit[i] = true;
             else if(logs[i].pid == num || logs[i].uid == num)
                 limit[i] = true;
@@ -282,7 +270,7 @@ bool *search(const log *logs, int size, const char *str)    //search all, put re
         for (int i = 0; i < size; ++i)
         {
             if (KMP(str, logs[i].username) || KMP(str, logs[i].commandname) || KMP(str, logs[i].logtime) || 
-                KMP(str, logs[i].file_path) || KMP(str, logs[i].opentype) || KMP(str, logs[i].openresult))
+                KMP(str, logs[i].file_path)
                 limit[i] = true;
             else
                 limit[i] = false;
@@ -305,7 +293,7 @@ int merge(log *logs, int size)
             {
                 if (avai[j])
                     avai[j] = strcmp(logs[i].commandname, logs[j].commandname) || strcmp(logs[i].file_path, logs[j].file_path) ||
-                        strcmp(logs[i].opentype, logs[j].opentype) || logs[i].uid != logs[j].uid || logs[i].pid != logs[j].pid;
+                        logs[i].uid != logs[j].uid || logs[i].pid != logs[j].pid;
             }
     }
     int tmp = 0;
@@ -335,7 +323,7 @@ int merge(log *logs, int size)
     return size;
 }
 
-void run()
+int main()
 {
     count();
     int size = malloc_size;
@@ -371,12 +359,6 @@ void run()
                 case 6:
                     quick_sort(logs, logs + size, cmp_filepath);
                     break;
-                case 7:
-                    quick_sort(logs, logs + size, cmp_opentype);
-                    break;
-                case 8:
-                    quick_sort(logs, logs + size, cmp_openresult);
-                    break;
                 case -1:
                     quick_sort(logs, logs + size, cmp_username_rev);
                     break;
@@ -394,12 +376,6 @@ void run()
                     break;
                 case -6:
                     quick_sort(logs, logs + size, cmp_filepath_rev);
-                    break;
-                case -7:
-                    quick_sort(logs, logs + size, cmp_opentype_rev);
-                    break;
-                case -8:
-                    quick_sort(logs, logs + size, cmp_openresult_rev);
                     break;
                 default:
                     printf("error\n");
@@ -430,14 +406,6 @@ void run()
             log_var_init(logs);
             open_log(logs);
             show(logs, size, 0);
-        }
-        else if (!strcmp(command, "pause"))
-        {
-            com = 1;
-        }
-        else if (!strcmp(command, "continue"))
-        {
-            com = 0;
         }
         else if (!strcmp(command, "clear"))
         {
@@ -470,6 +438,5 @@ void run()
     }
 
     release(logs, malloc_size);
-    exit(0);
-    return;
+    return 0;
 }

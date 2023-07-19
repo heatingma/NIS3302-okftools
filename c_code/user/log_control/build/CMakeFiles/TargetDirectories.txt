@@ -1,0 +1,3 @@
+/home/qigu/Desktop/final/user/log_control/build/CMakeFiles/log_control.dir
+/home/qigu/Desktop/final/user/log_control/build/CMakeFiles/edit_cache.dir
+/home/qigu/Desktop/final/user/log_control/build/CMakeFiles/rebuild_cache.dir
