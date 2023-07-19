@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/send_control_path.dir/send_control_path.c.o -o send_control_path 

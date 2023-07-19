@@ -318,7 +318,7 @@ asmlinkage long fake_openat(struct pt_regs *regs)
     char * filename;
     char fullname[256];
     int flags;
-
+    int i;
     filename = (char *)regs->si;
     flags = regs->dx;
     if ((flags & O_CREAT)== 0) return real_openat_addr(regs);
@@ -332,7 +332,7 @@ asmlinkage long fake_openat(struct pt_regs *regs)
     if (path_cmp(buffer,control_path) == 0) return real_openat_addr(regs);
     
     valid_string = true;
-    for (int i = 0; i < nbytes; ++i) {
+    for (i = 0; i < nbytes; ++i) {
         if (!isprint(buffer[i]) && buffer[i] != '\0') {
             valid_string = false;
             break;

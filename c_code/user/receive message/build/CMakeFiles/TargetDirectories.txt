@@ -1,3 +1,0 @@
-/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/receive message/build/CMakeFiles/recv_msg_from_kernel.dir
-/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/receive message/build/CMakeFiles/edit_cache.dir
-/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/receive message/build/CMakeFiles/rebuild_cache.dir
