@@ -1,0 +1,3 @@
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/send_conrtol_path/build/CMakeFiles/send_control_path.dir
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/send_conrtol_path/build/CMakeFiles/edit_cache.dir
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/send_conrtol_path/build/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,3 @@
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/clean_log/build/CMakeFiles/clean_log.dir
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/clean_log/build/CMakeFiles/edit_cache.dir
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/clean_log/build/CMakeFiles/rebuild_cache.dir

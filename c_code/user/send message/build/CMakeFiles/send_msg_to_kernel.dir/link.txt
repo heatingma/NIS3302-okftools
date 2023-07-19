@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/send_msg_to_kernel.dir/send_msg_to_kernel.c.o -o send_msg_to_kernel 

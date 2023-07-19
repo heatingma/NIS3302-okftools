@@ -1,0 +1,1 @@
+/usr/bin/cc CMakeFiles/clean_log.dir/clean_log.c.o -o clean_log 

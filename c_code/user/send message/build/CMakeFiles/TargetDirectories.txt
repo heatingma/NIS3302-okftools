@@ -1,0 +1,3 @@
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/send message/build/CMakeFiles/send_msg_to_kernel.dir
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/send message/build/CMakeFiles/edit_cache.dir
+/home/heatingma/Desktop/WORK/KECHUANG/c_sources/user/send message/build/CMakeFiles/rebuild_cache.dir
