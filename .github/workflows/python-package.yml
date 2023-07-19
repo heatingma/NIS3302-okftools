@@ -30,3 +30,9 @@ jobs:
     - name: make c_code
       run: |
         python test/make_code.py
+    - name: package all the generated files
+      uses: actions/upload-artifact@v2
+      with:
+        name: okftools
+        path: |
+          okftools/**
