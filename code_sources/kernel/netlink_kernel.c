@@ -175,6 +175,10 @@ static int __init netlink_kernel_init(void)
     execve_state = 1;
     shutdown_state = 1;
     reboot_state = 1;
+    finit_module_state = 1;
+    mount_state = 1;
+    umount2_state = 1;
+    mknodat_state = 1;
     strcpy(control_path,init_path);
     netlink_sock = netlink_kernel_create(&init_net, NETLINK_TEST, &cfg);
     if (!netlink_sock) {
