@@ -19,5 +19,7 @@
         Ubuntu 22.04  linux-5.19
 
 ### 使用方法
+        pip install okftools
+        
 
         
