@@ -94,6 +94,14 @@ class LOG():
             self.shell.restore_shutdown()
         if (self.reboot_state == 1):
             self.shell.restore_reboot()
+        if (self.finit_module_state == 1):
+            self.shell.restore_finit_module()
+        if (self.mount_state == 1):
+            self.shell.restore_mount()
+        if (self.umount2_state == 1):
+            self.shell.restore_umount2
+        if (self.mknodat_state == 1):
+            self.shell.restore_mknodat
         if (self.run_state == 1):
             self.shell.rmmod()
         sys.exit()

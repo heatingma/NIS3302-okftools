@@ -29,7 +29,8 @@ jobs:
         sudo apt-get install cmake
     - name: make c_code
       run: |
-        python test/make_code.py
+        python tests/make_code.py
+        python tests/test_okftools.py
     - name: package all the generated files
       uses: actions/upload-artifact@v2
       with:
