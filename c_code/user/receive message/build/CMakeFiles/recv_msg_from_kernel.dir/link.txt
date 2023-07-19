@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/recv_msg_from_kernel.dir/recv_msg_from_kernel.c.o -o recv_msg_from_kernel 
