@@ -2,7 +2,7 @@
 
 int main() {
     FILE *fp;
-    fp = fopen("log", "w");
+    fp = fopen("log.txt", "w");
     fclose(fp);
     return 0;
 }

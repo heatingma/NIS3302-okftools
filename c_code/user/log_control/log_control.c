@@ -53,7 +53,7 @@ void show(log *logs, int size, bool *limit)
 
 void clear(void)
 {
-    FILE * fp = fopen("log", "w");
+    FILE * fp = fopen("log.txt", "w");
     fclose(fp);   
 }
 
@@ -83,7 +83,7 @@ void release(log* logs, int size)
 void count()
 {
     FILE *logfile;
-    logfile=fopen("./log", "r");
+    logfile=fopen("./log.txt", "r");
     
     malloc_size = 0;
     char line[1024];
@@ -97,7 +97,7 @@ void count()
 void open_log(log* logs) //read all logs and return the num of logs
 {
     FILE *logfile;
-    logfile=fopen("./log", "r");
+    logfile=fopen("./log.txt", "r");
     
     int i = 0;
     
