@@ -78,6 +78,10 @@ int main(int argc, char * argv[])
     else if (strcmp(argv[2], "execve") == 0) flag = 3;
     else if (strcmp(argv[2], "shutdown") == 0) flag = 4;
     else if (strcmp(argv[2], "reboot") == 0) flag = 5;
+    else if (strcmp(argv[2], "finit_module") == 0) flag = 6;
+    else if (strcmp(argv[2], "mount") == 0) flag = 7;
+    else if (strcmp(argv[2], "umount2") == 0) flag = 8;
+    else if (strcmp(argv[2], "mknodat") == 0) flag = 9;
 
     send_message_to_kernel(flag,type);
 
