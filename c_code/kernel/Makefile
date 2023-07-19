@@ -1,12 +1,7 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -std=c99 -O2 -g
-
-KERNEL_HEADERS := /lib/modules/$(shell uname -r)/build
-
+CFLAGS := -Wall -Wextra -std=c99
 obj-m += netlink_kernel.o
-
 all:
-	$(MAKE) -C $(KERNEL_HEADERS) M=$(shell pwd) CFLAGS="$(CFLAGS)" modules
-
+	make -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) modules
 clean:
-	$(MAKE) -C $(KERNEL_HEADERS) M=$(shell pwd) clean
+	make -C /lib/modules/$(shell uname -r)/build M=$(shell pwd) clean
