@@ -43,7 +43,7 @@
 <br>
 <img src=docs/pyinstaller.png width=70% height=70% >
 <br>
-<strong><font face="仿宋" size=2>图4 python okftools_setup.py</font>
+<strong><font face="仿宋" size=2>图3 python okftools_setup.py</font>
 </strong>
 </center></div>
 
@@ -52,11 +52,11 @@
 <div><center>
 <img src=docs/okftools.png width=70% height=70% >
 <br>
-<strong><font face="仿宋" size=2>图5 oktfools</font>
+<strong><font face="仿宋" size=2>图4 oktfools</font>
 </strong>
 </center></div>
 
-
+### 注意事项
         * If the following error occurs:
                 libGL error: failed to load driver: swrast.
                 libGL error: failed to load driver: vmwgfx
