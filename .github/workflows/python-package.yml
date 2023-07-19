@@ -35,4 +35,4 @@ jobs:
       with:
         name: okftools
         path: |
-          okftools/*
+          okftools/**
