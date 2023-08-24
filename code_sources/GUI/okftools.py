@@ -71,7 +71,7 @@ class LOG():
         self.screen = pg.display.set_mode(self.screen_size)
         self.title = textBox(200, 50, 400, 70, font=35, color=self.screen_color, font_color='red')
         self.exit_button = Button(300, 490, 200, 40, "EXIT", font=20, button_color='paleturquoise', text_color='black')
-        self.home_button = Button(600, 490, 100, 30, "HOME", font=16, button_color='#aaaaaa', text_color='black')
+        self.home_button = Button(600, 490, 100, 30, "HOME", font=16, button_color='#aaaaaa', text_color='black', border_color="gray")
         self.run_state = 0
         self.openat_state = 0
         self.unlink_state = 0
@@ -205,7 +205,7 @@ class LOG():
                                     text_color='black')
 
         
-        self.exit_button = Button(600, 530, 100, 30, "EXIT", font=16, button_color='#aaaaaa', text_color='black')
+        self.exit_button = Button(600, 530, 100, 30, "EXIT", font=16, button_color='#aaaaaa', text_color='black', border_color="gray")
 
     def main_action(self):
         self.path_tip.input("Please input the path(Optional)")
@@ -560,7 +560,7 @@ class LOG():
 
     def update_screen(self, list: list):
         self.screen.fill(self.screen_color)
-        self.title.input("SOFTWARE")
+        self.title.input("OKFTOOLS")
         for i in range(len(list)):
             if list[i].show:
                 list[i].draw(self.screen)
@@ -722,7 +722,7 @@ class cmds:
 
 class Button:
     def __init__(self, x, y, w, h, msg, font_name="Georgia", font=24, button_color=(0, 255, 0), text_color=(255, 255, 255),
-                 border_radius=15, border_width=2, border_color=(255, 255, 255, 128)):
+                 border_radius=15, border_width=2, border_color="#87ceeb"):
         self.active = False
         self.check = False
         self.button_color = pg.Color(button_color)
@@ -1219,7 +1219,7 @@ class Timer:
 #############################################################
 def main():
     pg.init()
-    pg.display.set_caption("software")
+    pg.display.set_caption("okftools")
     work = LOG()
     while True:
         if work.exit_button.active:
