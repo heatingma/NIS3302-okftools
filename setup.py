@@ -6,8 +6,7 @@
 
 import io
 import os
-from wheel.bdist_wheel import bdist_wheel as _bdist_wheel, get_platform, get_abi_tag, tags
-from setuptools.command.install import install as _install
+from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 from setuptools import setup
 
 NAME = 'okftools'
@@ -27,19 +26,18 @@ except FileNotFoundError:
     long_description = DESCRIPTION
 
 
-class InstallCommand(_install):
+class BdistWheelCommand(_bdist_wheel):
     def run(self):
-        try:
-            os.system("python okftools/okftools_setup.py")
-            os.system("python3 okftools/okftools_setup.py")
-        except:
-            pass
-        _install.run(self)
+        ori_dir = os.getcwd()
+        os.chdir('okftools')
+        os.system("python3 okftools_setup.py")
+        os.chdir(ori_dir)
+        super().run()
         
         
 setup(
     name=NAME,
-    version='0.1.0-alpha2',
+    version='0.1.1',
     description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -61,6 +59,6 @@ setup(
         'Operating System :: POSIX :: Linux',
     ],
     cmdclass={
-        'install': InstallCommand,
+        'bdist_wheel': BdistWheelCommand,
     },
 )
